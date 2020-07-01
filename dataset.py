@@ -29,7 +29,7 @@ class X_View_FasterRCNN(Dataset):
         labels = []
         img_meta = self.meta[img_name]
         for i in range(len(img_meta)):
-            if (include is not None) and (img_meta[i][1] in include is True):
+            if (self.include is not None) and (img_meta[i][1] in self.include is True):
                 #print("box:", img_meta[i][0], "label", img_meta[i][1])
                 boxes.append(img_meta[i][0])
                 labels.append(img_meta[i][1])
