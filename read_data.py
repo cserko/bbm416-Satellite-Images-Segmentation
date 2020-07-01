@@ -26,7 +26,7 @@ def create_meta(df):
 def save_obj(obj, name ):
     '''args::kaydedilecek obje:obj, kaydedileceği isim:name'''
     with open(name + '.pkl', 'wb') as f:
-        pickle.dump(obj, f, protocol=3)
+        pickle.dump(obj, f, protocol=2)
 
 def load_obj(name):
     '''args aynı dizince olacak dosyanın ismi: name'''
