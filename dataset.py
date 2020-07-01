@@ -10,6 +10,7 @@ import pandas as pd
 from classes import class_list
 
 
+
 class X_View_FasterRCNN(Dataset):
     def __init__(self, meta, root_dir, include=None, classes=None, transforms=None):
         self.meta = meta
@@ -18,7 +19,7 @@ class X_View_FasterRCNN(Dataset):
         self.meta_keys = list(meta.keys())
         self.classes = classes
         self.include = [i for i in include if i in self.classes.keys()]
-
+        
     def __getitem__(self, idx):
         # load images ad masks
         img_name = self.meta_keys[idx]
@@ -29,11 +30,12 @@ class X_View_FasterRCNN(Dataset):
         labels = []
         img_meta = self.meta[img_name]
         for i in range(len(img_meta)):
-            if (self.include is not None) and (img_meta[i][1] in self.include is True):
+            
+            if int(img_meta[i][1]) in self.include:
                 #print("box:", img_meta[i][0], "label", img_meta[i][1])
+
                 boxes.append(img_meta[i][0])
                 labels.append(img_meta[i][1])
-                
         if len(labels) < 2:
             return None
         # convert everything into a torch.Tensor
