@@ -24,8 +24,24 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
         lr_scheduler = utils.warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
 
     for images, targets in metric_logger.log_every(data_loader, print_freq, header):
-        images = list(image.to(device) for image in images)
-        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+
+
+
+        '''Burası değiştirilecek'''
+        targets["boxes"] = targets["boxes"].to(device)
+        targets["labels"] = targets["labels"].to(device)
+        targets["boxes"].squeeze_()
+        targets["labels"].squeeze_()
+        targets1 = [{k: v for k, v in targets.items()}]
+        
+        images = images.to(device)
+        targets = targets1
+        # zero the parameter gradients
+
+        # forward
+        # track history if only in train
+        #images = list(image.to(device) for image in images)
+        #targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
         loss_dict = model(images, targets)
 
