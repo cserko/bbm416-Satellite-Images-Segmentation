@@ -19,7 +19,7 @@ class X_View_FasterRCNN(Dataset):
         self.meta_keys = list(meta.keys())
         self.classes = classes
         self.include = [i for i in include if i in self.classes.keys()]
-        self.ordered_class = {include[i]:i for i in range(1, len(include))}
+        self.ordered_class = {include[i]:i+1 for i in range(len(include))}
         self.not_found_images = []
         self.os_trucated_error = []
         self.generic_error = []
