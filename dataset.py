@@ -66,6 +66,8 @@ class X_View_FasterRCNN(Dataset):
     
 def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
+    if len(batch) == 0:
+      batch = [[], []]
     return torch.utils.data.dataloader.default_collate(batch)
     
 def load_dataset(meta, root_dir, include=None, workers=0):
