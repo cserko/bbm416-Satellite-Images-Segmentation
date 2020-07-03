@@ -95,9 +95,9 @@ def evaluate(model, data_loader, device):
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Test:'
 
-    coco = get_coco_api_from_dataset(data_loader.dataset)
-    iou_types = _get_iou_types(model)
-    coco_evaluator = CocoEvaluator(coco, iou_types)
+    #coco = get_coco_api_from_dataset(data_loader.dataset)
+    #iou_types = _get_iou_types(model)
+    #coco_evaluator = CocoEvaluator(coco, iou_types)
 
     for i in metric_logger.log_every(data_loader, 100, header):
 
@@ -109,7 +109,7 @@ def evaluate(model, data_loader, device):
             targets["labels"].squeeze_()
             
             targets1 = [{k: v.to(device) for k, v in targets.items()}]
-            
+
             images = list(img.to(device) for img in images)
             targets = targets1
 
@@ -121,22 +121,22 @@ def evaluate(model, data_loader, device):
         model_time = time.time()
         outputs = model(images)
 
-        outputs = [{k: v.to(cpu_device) for k, v in t.items()} for t in outputs]
+        #outputs = [{k: v.to(cpu_device) for k, v in t.items()} for t in outputs]
+        outputs = [{k: v.to(cpu_device) for k, v in t.items()}]
         model_time = time.time() - model_time
 
         res = {target["image_id"].item(): output for target, output in zip(targets, outputs)}
         evaluator_time = time.time()
-        coco_evaluator.update(res)
         evaluator_time = time.time() - evaluator_time
         metric_logger.update(model_time=model_time, evaluator_time=evaluator_time)
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
-    coco_evaluator.synchronize_between_processes()
+    #coco_evaluator.synchronize_between_processes()
 
     # accumulate predictions from all images
-    coco_evaluator.accumulate()
-    coco_evaluator.summarize()
+    #coco_evaluator.accumulate()
+    #coco_evaluator.summarize()
     torch.set_num_threads(n_threads)
     return coco_evaluator
