@@ -53,7 +53,9 @@ def get_masks(path, meta, view_drawings=False):
         try:
             coord = [int(c) for c in row[1].split(',')] 
             box = img[coord[1]:coord[3], coord[0]:coord[2], :]
-            box_cor = [coord[1], coord[3], coord[0], coord[2]]
+            # x0, x1, y0, y1
+            #box_cor = [coord[1], coord[3], coord[0], coord[2]]
+            box_cor = [coord[1], coord[0], coord[3], coord[2]]
             boxes[curr].append([box_cor, row[2]])
             
             if view_drawings is True:
