@@ -20,13 +20,28 @@ class X_View_FasterRCNN(Dataset):
         self.classes = classes
         self.include = [i for i in include if i in self.classes.keys()]
         self.ordered_class = {include[i]:i for i in range(len(include))}
+        self.not_found_images = []
+        self.os_trucated_error = []
+        self.generic_error = []
+
         print("correspondence of class names and labels:", self.ordered_class)
         
     def __getitem__(self, idx):
         # load images ad masks
         img_name = self.meta_keys[idx]
         img_path = os.path.join(self.root, "train_images", img_name)
-        img = Image.open(img_path).convert("RGB")
+        try:
+            img = Image.open(img_path).convert("RGB")
+        except FileNotFoundError:
+            self.not_found_images.append(img_path)
+            return None
+        except OSError:
+            self.os_trucated_error.append(img_path)
+            return None
+        except Exception as e:
+            self.generic_error.append(e)
+            return None
+
         px, py = img.size
         boxes = []
         labels = []
@@ -41,6 +56,7 @@ class X_View_FasterRCNN(Dataset):
         box[3] > box[1]
         box[2] > box[0]
         '''
+        
         
         for i in range(len(img_meta)):
             
