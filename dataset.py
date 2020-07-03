@@ -19,6 +19,8 @@ class X_View_FasterRCNN(Dataset):
         self.meta_keys = list(meta.keys())
         self.classes = classes
         self.include = [i for i in include if i in self.classes.keys()]
+        self.ordered_class = {include[i]:i for i in range(len(include))}
+        print("correspondence of class names and labels:", self.ordered_class)
         
     def __getitem__(self, idx):
         # load images ad masks
@@ -32,10 +34,12 @@ class X_View_FasterRCNN(Dataset):
         for i in range(len(img_meta)):
             
             if int(img_meta[i][1]) in self.include:
+                if img_meta[i][0][0] < 0 or img_meta[i][0][1] < 0 or img_meta[i][0][2] < 0 or img_meta[i][0][3] < 0:
+                    continue
                 #print("box:", img_meta[i][0], "label", img_meta[i][1])
-
+                ordered_label = self.ordered_class[img_meta[i][1]]
                 boxes.append(img_meta[i][0])
-                labels.append(img_meta[i][1])
+                labels.append(ordered_label)
         if len(labels) < 2:
             return None
         # convert everything into a torch.Tensor
