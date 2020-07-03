@@ -51,7 +51,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
             losses_reduced = sum(loss for loss in loss_dict_reduced.values())
 
             loss_value = losses_reduced.item()
-            print(targets[0]["boxes"])
+            #print(targets[0]["boxes"])
             if not math.isfinite(loss_value):
                 print("Loss is {}, stopping training".format(loss_value))
                 print(loss_dict_reduced)
