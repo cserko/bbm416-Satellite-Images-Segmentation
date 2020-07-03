@@ -25,49 +25,50 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
 
     for images, targets in metric_logger.log_every(data_loader, print_freq, header):
 
+        try:
+            '''Burası değiştirilecek'''
+            targets["boxes"] = targets["boxes"].to(device)
+            targets["labels"] = targets["labels"].to(device)
+            targets["boxes"].squeeze_()
+            targets["labels"].squeeze_()
+            targets1 = [{k: v for k, v in targets.items()}]
+            
+            images = images.to(device)
+            targets = targets1
+            # zero the parameter gradients
 
+            # forward
+            # track history if only in train
+            #images = list(image.to(device) for image in images)
+            #targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
-        '''Burası değiştirilecek'''
-        targets["boxes"] = targets["boxes"].to(device)
-        targets["labels"] = targets["labels"].to(device)
-        targets["boxes"].squeeze_()
-        targets["labels"].squeeze_()
-        targets1 = [{k: v for k, v in targets.items()}]
-        
-        images = images.to(device)
-        targets = targets1
-        # zero the parameter gradients
+            loss_dict = model(images, targets)
 
-        # forward
-        # track history if only in train
-        #images = list(image.to(device) for image in images)
-        #targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+            losses = sum(loss for loss in loss_dict.values())
 
-        loss_dict = model(images, targets)
+            # reduce losses over all GPUs for logging purposes
+            loss_dict_reduced = utils.reduce_dict(loss_dict)
+            losses_reduced = sum(loss for loss in loss_dict_reduced.values())
 
-        losses = sum(loss for loss in loss_dict.values())
+            loss_value = losses_reduced.item()
+            print(targets[0]["boxes"])
+            if not math.isfinite(loss_value):
+                print("Loss is {}, stopping training".format(loss_value))
+                print(loss_dict_reduced)
+                sys.exit(1)
 
-        # reduce losses over all GPUs for logging purposes
-        loss_dict_reduced = utils.reduce_dict(loss_dict)
-        losses_reduced = sum(loss for loss in loss_dict_reduced.values())
+            optimizer.zero_grad()
+            losses.backward()
+            optimizer.step()
 
-        loss_value = losses_reduced.item()
+            if lr_scheduler is not None:
+                lr_scheduler.step()
 
-        if not math.isfinite(loss_value):
-            print("Loss is {}, stopping training".format(loss_value))
-            print(loss_dict_reduced)
-            sys.exit(1)
-
-        optimizer.zero_grad()
-        losses.backward()
-        optimizer.step()
-
-        if lr_scheduler is not None:
-            lr_scheduler.step()
-
-        metric_logger.update(loss=losses_reduced, **loss_dict_reduced)
-        metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-
+            metric_logger.update(loss=losses_reduced, **loss_dict_reduced)
+            metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+        except ValueError:
+            continue
+            
     return metric_logger
 
 
