@@ -20,41 +20,49 @@ class X_View_FasterRCNN(Dataset):
         self.classes = classes
         self.include = [i for i in include if i in self.classes.keys()]
         self.ordered_class = {include[i]:i for i in range(len(include))}
-        self.not_found_images = []
-        self.os_trucated_error = []
-        self.generic_error = []
         print("correspondence of class names and labels:", self.ordered_class)
         
     def __getitem__(self, idx):
         # load images ad masks
         img_name = self.meta_keys[idx]
         img_path = os.path.join(self.root, "train_images", img_name)
-        try:
-            img = Image.open(img_path).convert("RGB")
-        except FileNotFoundError:
-            self.not_found_images.append(img_path)
-            return None
-        except OSError:
-            self.os_trucated_error.append(img_path)
-            return None
-        except Exception as e:
-            self.generic_error.append(e)
-            return None
-
-
-
+        img = Image.open(img_path).convert("RGB")
+        px, py = img.size
         boxes = []
         labels = []
         img_meta = self.meta[img_name]
+        
+        #px py
+        #[pymin, pxmin, pymax, pxmax]
+        '''
+        box[1] < px < box[3]
+        box[0] < py < box[2]
+
+        box[3] > box[1]
+        box[2] > box[0]
+        '''
+        
         for i in range(len(img_meta)):
             
             if int(img_meta[i][1]) in self.include:
                 if img_meta[i][0][0] < 0 or img_meta[i][0][1] < 0 or img_meta[i][0][2] < 0 or img_meta[i][0][3] < 0:
                     continue
-                #print("box:", img_meta[i][0], "label", img_meta[i][1])
+                #print("box:", img_meta[i][0])
                 ordered_label = self.ordered_class[img_meta[i][1]]
+                
+                if not (img_meta[i][0][3] < px and img_meta[i][0][2] < py):
+                    #print(img_meta[i][0], px, py)
+                    #print("*"*10)
+                    #print("{} > {} and {} > {}".format(px, img_meta[i][0][3],  py, img_meta[i][0][2]))
+                    continue
+                    
+                if not(img_meta[i][0][3] > img_meta[i][0][1] and img_meta[i][0][2] > img_meta[i][0][0]):
+                    continue
+                
                 boxes.append(img_meta[i][0])
                 labels.append(ordered_label)
+            
+            #print("box size: ", len(boxes))
         if len(labels) < 2:
             return None
         # convert everything into a torch.Tensor
