@@ -6,7 +6,7 @@ import torch
 import torchvision.models.detection.mask_rcnn
 
 from coco_utils import get_coco_api_from_dataset
-from coco_eval import CocoEvaluator
+#from coco_eval import CocoEvaluator
 import utils
 
 
@@ -54,6 +54,8 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
             loss_value = losses_reduced.item()
             #print(targets[0]["boxes"])
             if not math.isfinite(loss_value):
+                print(images.size())
+                print(targets[0]["boxes"])
                 print("Loss is {}, stopping training".format(loss_value))
                 print(loss_dict_reduced)
                 sys.exit(1)
