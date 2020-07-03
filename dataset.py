@@ -21,6 +21,8 @@ class X_View_FasterRCNN(Dataset):
         self.include = [i for i in include if i in self.classes.keys()]
         self.ordered_class = {include[i]:i for i in range(len(include))}
         self.not_found_images = []
+        self.os_trucated_error = []
+        self.generic_error = []
         print("correspondence of class names and labels:", self.ordered_class)
         
     def __getitem__(self, idx):
@@ -32,6 +34,13 @@ class X_View_FasterRCNN(Dataset):
         except FileNotFoundError:
             self.not_found_images.append(img_path)
             return None
+        except OSError:
+            self.os_trucated_error.append(img_path)
+            return None
+        except Exception as e:
+            self.generic_error.append(e)
+            return None
+
 
 
         boxes = []
