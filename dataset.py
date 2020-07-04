@@ -75,7 +75,9 @@ class X_View_FasterRCNN(Dataset):
                 if not(img_meta[i][0][3] > img_meta[i][0][1] and img_meta[i][0][2] > img_meta[i][0][0]):
                     continue
                 
-                boxes.append(img_meta[i][0])
+                box = [img_meta[i][0][1], img_meta[i][0][0], img_meta[i][0][3], img_meta[i][0][2]]
+                boxes.append(box)
+                #boxes.append(img_meta[i][0])
                 labels.append(ordered_label)
             
             #print("box size: ", len(boxes))
