@@ -5,9 +5,10 @@ import torch
 
 import torchvision.models.detection.mask_rcnn
 
-from coco_utils import get_coco_api_from_dataset
-from coco_eval import CocoEvaluator
+#from coco_utils import get_coco_api_from_dataset
+#from coco_eval import CocoEvaluator
 import utils
+from draw_util import draw_boxes
 
 
 def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
@@ -88,7 +89,7 @@ def _get_iou_types(model):
 
 
 @torch.no_grad()
-def evaluate(model, data_loader, device):
+def evaluate(model, data_loader, device, draw=False):
     n_threads = torch.get_num_threads()
     # FIXME remove this and make paste_masks_in_image run on the GPU
     torch.set_num_threads(1)
@@ -124,10 +125,13 @@ def evaluate(model, data_loader, device):
         outputs = model(images)
 
         #outputs = [{k: v.to(cpu_device) for k, v in t.items()} for t in outputs]
-        outputs = [{k: v.to(cpu_device) for k, v in t.items()}]
+        print(outputs)
+        outputs = [{k: v.to(cpu_device) for k, v in outputs[0].items()}]
+        if draw:
+            draw_boxes(images[0].to(cpu_device), targets)
         model_time = time.time() - model_time
 
-        res = {target["image_id"].item(): output for target, output in zip(targets, outputs)}
+        #res = {target["image_id"].item(): output for target, output in zip(targets, outputs)}
         evaluator_time = time.time()
         evaluator_time = time.time() - evaluator_time
         metric_logger.update(model_time=model_time, evaluator_time=evaluator_time)
@@ -141,4 +145,5 @@ def evaluate(model, data_loader, device):
     #coco_evaluator.accumulate()
     #coco_evaluator.summarize()
     torch.set_num_threads(n_threads)
-    return coco_evaluator
+    #return coco_evaluator
+    return None
