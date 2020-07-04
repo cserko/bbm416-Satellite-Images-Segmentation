@@ -9,7 +9,12 @@ import numpy as np
 import pandas as pd
 import cv2 as cv
 from read_data import system_load
-
+colab = False
+try:
+  from google.colab.patches import cv2_imshow
+  colab = True
+except Exception as e:
+  print(e)
 
 class UnNormalize(object):
     def __init__(self, mean, std):
@@ -66,7 +71,11 @@ def draw(img, tup, color, thickness):
 def imshow(img):
     #img = np.transpose(img, (1, 2, 0))
     #print(img.shape)
-    cv.imshow("imgi", ResizeWithAspectRatio(img))
+    if colab is True:
+      cv2_imshow(ResizeWithAspectRatio(img))
+    else:
+      cv.imshow("imgi", ResizeWithAspectRatio(img))
+    
     cv.waitKey(0)
     
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv.INTER_AREA):
