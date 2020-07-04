@@ -53,9 +53,11 @@ def get_masks(path, meta, view_drawings=False):
         try:
             coord = [int(c) for c in row[1].split(',')] 
             box = img[coord[1]:coord[3], coord[0]:coord[2], :]
+            
             # x0, x1, y0, y1
             #box_cor = [coord[1], coord[3], coord[0], coord[2]]
             box_cor = [coord[1], coord[0], coord[3], coord[2]]
+            print(box_cor)
             boxes[curr].append([box_cor, row[2]])
             
             if view_drawings is True:
@@ -69,12 +71,13 @@ def get_masks(path, meta, view_drawings=False):
     return boxes
 
 ''' burada eğer dosya önceden kaydedilmişse direkt yüklenir ya da dosya oluşturulur. '''
-def system_load(init=False, geojson_file="xView_train.geojson", view_drawings=False):
+def system_load(init=False, geojson_file="xView_train.geojson", view_drawings=False, df_file=None):
     '''init should be True if there is not boxes.pkl yet'''
     root_dir = os.path.abspath(os.getcwd())
     if init:
         print("read geojson. . . ")
-        df_file = gpd.read_file("xView_train.geojson") # arkadaşın yüklenmesi uzun sürüyor.
+        if df_file is None:
+            df_file = gpd.read_file("xView_train.geojson") # arkadaşın yüklenmesi uzun sürüyor.
         print("completed!")
         print("create csv. . .")
         meta = create_meta(df_file)
@@ -86,4 +89,4 @@ def system_load(init=False, geojson_file="xView_train.geojson", view_drawings=Fa
         boxes = load_obj("boxes")
         print("meta loaded!")
     
-    return (boxes, root_dir)
+    return (boxes, root_dir, df_file)
