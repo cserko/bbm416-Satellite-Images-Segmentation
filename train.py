@@ -76,9 +76,8 @@ def model_creation(pretrain=True, num_classes=5, num_epoch=20, device="cuda:0"):
                                                     gamma=0.1)
 
     # let's train it for 10 epochs
-    num_epochs = 50
 
-    return model, optimizer, lr_scheduler, num_epochs, 
+    return model, optimizer, lr_scheduler, num_epoch, 
 
 def load_model(model_path):
     return torch.load(model_path)
